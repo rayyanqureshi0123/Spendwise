@@ -1,40 +1,38 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
-const expenseSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  title: {
+const userSchema = new mongoose.Schema({
+  name: {
     type: String,
     required: true,
     trim: true
   },
-  amount: {
-    type: Number,
-    required: true
-  },
- category: {
+  email: {
     type: String,
-    enum: [
-      'Food',
-      'Travel', 
-      'Bills',
-      'Entertainment',
-      'Shopping',
-      'Health',
-      'Education',
-      'Rent',
-      'Groceries',
-      'Other'
-    ],
-    default: 'Other'
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true
   },
-  date: {
-    type: Date,
-    default: Date.now
+  password: {
+    type: String,
+    required: true
   }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Expense', expenseSchema);
+
+// 🔐 Hash password before saving
+userSchema.pre('save', async function() {
+  if (!this.isModified('password')) return;
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+
+
+// 🔑 Compare password
+userSchema.methods.comparePassword = async function(password) {
+  return await bcrypt.compare(password, this.password);
+};
+
+export default mongoose.model('User', userSchema);
