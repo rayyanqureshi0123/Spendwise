@@ -1,14 +1,11 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import validator from 'validator';
-
 
 // 🔐 SIGNUP
 export const signupUser = async (req, res) => {
   try {
-    console.log(req.body);
-    console.log(req.file); // useful if you add image later
-
     const { name, email, password } = req.body;
 
     // ❗ Check missing fields
@@ -27,8 +24,8 @@ export const signupUser = async (req, res) => {
       });
     }
 
-    // ❗ Password validation
-    if (password.length > 8) {
+    // ❗ Password validation (fixed < instead of >)
+    if (password.length < 8) {
       return res.status(400).json({
         success: false,
         message: "Password must be at least 8 characters",
@@ -44,8 +41,11 @@ export const signupUser = async (req, res) => {
       });
     }
 
+    // ✅ Hash password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // ✅ Create user
-    const user = new User({ name, email, password });
+    const user = new User({ name, email, password: hashedPassword });
     await user.save();
 
     // 🔐 Generate token
@@ -55,7 +55,7 @@ export const signupUser = async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    // ❌ Remove password
+    // ❌ Remove password from response
     const userData = user.toObject();
     delete userData.password;
 
@@ -73,6 +73,7 @@ export const signupUser = async (req, res) => {
   }
 };
 
+// 🔐 LOGIN
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -86,7 +87,6 @@ export const loginUser = async (req, res) => {
     }
 
     // ❗ Validate email format
-   
     if (!validator.isEmail(email)) {
       return res.status(400).json({
         success: false,
@@ -103,8 +103,8 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // ❗ Check password
-    const isMatch = await user.comparePassword(password);
+    // ❗ Compare hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({
         success: false,

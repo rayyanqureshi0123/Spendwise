@@ -156,12 +156,82 @@ export const getMonthlySummary = async (req, res) => {
       },
       {
         $group: {
-          _id: { $month: "$date" },
+          _id: {
+            year: { $year: "$date" },
+            month: { $month: "$date" }
+          },
+          totalAmount: { $sum: "$amount" }
+        }
+      },
+      {
+        $sort: {
+          "_id.year": 1,
+          "_id.month": 1
+        }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: summary
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+};
+
+export const getYearlySummary = async (req, res) => {
+  try {
+    const summary = await Expense.aggregate([
+      {
+        $match: {
+          userId: req.user._id
+        }
+      },
+      {
+        $group: {
+          _id: { $year: "$date" },
           totalAmount: { $sum: "$amount" }
         }
       },
       {
         $sort: { "_id": 1 }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: summary
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+};  
+
+export const getCategorySummary = async (req, res) => {
+  try {
+    const summary = await Expense.aggregate([
+      {
+        $match: {
+          userId: req.user._id
+        }
+      },
+      {
+        $group: {
+          _id: "$category",
+          totalAmount: { $sum: "$amount" }
+        }
+      },
+      {
+        $sort: { totalAmount: -1 }
       }
     ]);
 

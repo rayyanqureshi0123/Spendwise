@@ -4,7 +4,10 @@ import {
   getExpenses,
   deleteExpense,
   updateExpense,
-  getMonthlySummary 
+  getMonthlySummary,
+  getYearlySummary,
+  getCategorySummary
+  
 } from '../controllers/expenseController.js';
 
 import { protect } from '../middleware/authMiddleware.js';
@@ -24,5 +27,9 @@ router.put('/:id', protect, updateExpense);
 router.delete('/:id', protect, deleteExpense);
 
 router.get('/summary/monthly', protect, getMonthlySummary);
+
+router.get('/summary/yearly', protect, getYearlySummary);
+
+router.get('/summary/category', protect, getCategorySummary);
 
 export default router;
