@@ -4,14 +4,15 @@ import Expense from '../models/Expense.js';
 // ➕ ADD EXPENSE
 export const addExpense = async (req, res) => {
   try {
-    const { title, amount, category, date } = req.body;
+    const { title, amount, category, date, notes } = req.body;
 
     const expense = new Expense({
       userId: req.user._id,
       title,
       amount,
       category,
-      date
+      date,
+      notes
     });
 
     const savedExpense = await expense.save();
@@ -88,12 +89,13 @@ export const updateExpense = async (req, res) => {
       });
     }
 
-    const { title, amount, category, date } = req.body;
+    const { title, amount, category, date, notes } = req.body;
 
     expense.title = title || expense.title;
     expense.amount = amount || expense.amount;
     expense.category = category || expense.category;
     expense.date = date || expense.date;
+    if (notes !== undefined) expense.notes = notes;
 
     const updated = await expense.save();
 
