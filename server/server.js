@@ -15,10 +15,10 @@ app.use(express.json());
 
 // Routes
 import authRoutes from './routes/auth.js';
-// import expenseRoutes from './routes/expenses.js';
+import expenseRoutes from './routes/expense.js';
 
 app.use('/api/auth', authRoutes);
-// app.use('/api/expenses', expenseRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 // Test route
 app.get('/', (req, res) => {
