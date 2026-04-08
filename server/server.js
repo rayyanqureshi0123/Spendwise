@@ -13,9 +13,8 @@ console.log('Starting server...');
 
 // Allowed Origins
 const allowedOrigins = [
-  "http://localhost:5173", // frontend local
-  "http://localhost:5174", // frontend local alternate
-  "https://spendwise-beta-cyan.vercel.app" // frontend vercel
+  "http://localhost:5173",
+  "http://localhost:5174"
 ];
 
 // Middleware
