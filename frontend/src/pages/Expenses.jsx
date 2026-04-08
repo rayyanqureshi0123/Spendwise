@@ -146,7 +146,7 @@ const Expenses = () => {
                   onChange={setFilterYear}
                   options={[
                     { value: 'All', label: 'All Years' },
-                    ...Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - 3 + i).map(y => ({ value: y, label: String(y) }))
+                    ...Array.from({ length: 21 }, (_, i) => new Date().getFullYear() - 10 + i).map(y => ({ value: y, label: String(y) }))
                   ]}
                 />
               </div>
