@@ -14,7 +14,8 @@ console.log('Starting server...');
 // Allowed Origins
 const allowedOrigins = [
   "http://localhost:5173",
-  "http://localhost:5174"
+  "http://localhost:5174",
+  "https://spendwise-six-rouge.vercel.app"
 ];
 
 // Middleware
