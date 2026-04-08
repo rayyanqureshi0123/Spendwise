@@ -12,7 +12,10 @@ const app = express();
 console.log('Starting server...');
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*',
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes
