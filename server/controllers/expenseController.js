@@ -1,7 +1,6 @@
 import Expense from '../models/Expense.js';
 
 
-// ➕ ADD EXPENSE
 export const addExpense = async (req, res) => {
   try {
     const { title, amount, category, date, notes } = req.body;
@@ -31,7 +30,6 @@ export const addExpense = async (req, res) => {
 };
 
 
-// 📥 GET ALL EXPENSES
 export const getExpenses = async (req, res) => {
   try {
     const { category, startDate, endDate } = req.query;
@@ -40,12 +38,10 @@ export const getExpenses = async (req, res) => {
       userId: req.user._id
     };
 
-    // 🔍 Category filter
     if (category) {
       filter.category = category;
     }
 
-    // 📅 Date filter
     if (startDate && endDate) {
       filter.date = {
         $gte: new Date(startDate),
@@ -69,7 +65,6 @@ export const getExpenses = async (req, res) => {
 };
 
 
-// ✏️ UPDATE EXPENSE
 export const updateExpense = async (req, res) => {
   try {
     const expense = await Expense.findById(req.params.id);
@@ -81,7 +76,6 @@ export const updateExpense = async (req, res) => {
       });
     }
 
-    // 🔐 check ownership
     if (expense.userId.toString() !== req.user._id.toString()) {
       return res.status(401).json({
         success: false,
@@ -113,7 +107,6 @@ export const updateExpense = async (req, res) => {
 };
 
 
-// ❌ DELETE EXPENSE
 export const deleteExpense = async (req, res) => {
   try {
     const expense = await Expense.findById(req.params.id);
@@ -125,7 +118,6 @@ export const deleteExpense = async (req, res) => {
       });
     }
 
-    // 🔐 check ownership
     if (expense.userId.toString() !== req.user._id.toString()) {
       return res.status(401).json({
         success: false,

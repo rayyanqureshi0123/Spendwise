@@ -1,14 +1,11 @@
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import validator from 'validator';
 
-// 🔐 SIGNUP
 export const signupUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // ❗ Check missing fields
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -16,7 +13,6 @@ export const signupUser = async (req, res) => {
       });
     }
 
-    // ❗ Email validation
     if (!validator.isEmail(email)) {
       return res.status(400).json({
         success: false,
@@ -24,7 +20,6 @@ export const signupUser = async (req, res) => {
       });
     }
 
-    // ❗ Password validation (fixed < instead of >)
     if (password.length < 8) {
       return res.status(400).json({
         success: false,
@@ -32,8 +27,7 @@ export const signupUser = async (req, res) => {
       });
     }
 
-    // ❗ Check existing user
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(409).json({
         success: false,
@@ -41,21 +35,15 @@ export const signupUser = async (req, res) => {
       });
     }
 
-    // ✅ Hash password before saving
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // ✅ Create user
-    const user = new User({ name, email, password: hashedPassword });
+    const user = new User({ name, email, password });
     await user.save();
 
-    // 🔐 Generate token
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // ❌ Remove password from response
     const userData = user.toObject();
     delete userData.password;
 
@@ -73,12 +61,10 @@ export const signupUser = async (req, res) => {
   }
 };
 
-// 🔐 LOGIN
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // ❗ Check missing fields
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -86,7 +72,6 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // ❗ Validate email format
     if (!validator.isEmail(email)) {
       return res.status(400).json({
         success: false,
@@ -94,8 +79,7 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // ❗ Check if user exists
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -103,8 +87,8 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // ❗ Compare hashed password
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await user.comparePassword(password);
+
     if (!isMatch) {
       return res.status(400).json({
         success: false,
@@ -112,14 +96,12 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // 🔐 Generate token
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // ❌ Remove password from response
     const userData = user.toObject();
     delete userData.password;
 
