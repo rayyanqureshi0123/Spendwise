@@ -11,10 +11,19 @@ const app = express();
 
 console.log('Starting server...');
 
+// Allowed Origins
+const allowedOrigins = [
+  "http://localhost:5173", // frontend local
+  "http://localhost:5174", // frontend local alternate
+  "https://spendwise-beta-cyan.vercel.app" // frontend vercel
+];
+
 // Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
-  credentials: true
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 }));
 app.use(express.json());
 
